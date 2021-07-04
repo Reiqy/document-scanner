@@ -1,1 +1,1 @@
-# document-scanner
+# Document Scanner
