@@ -43,10 +43,22 @@ def detect_edges(img, threshold1=50, threshold2=200):
 
 def detect_document(img):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    disp_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    cv2.drawContours(disp_img, contours, -1, (0, 0, 255))
-    cv2.imshow("Contours", disp_img)
-    cv2.waitKey(0)
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    document_contour = None
+    for contour in contours:
+        perimeter = cv2.arcLength(contour, True)
+        approximation = cv2.approxPolyDP(contour, 0.01 * perimeter, True)
+
+        if len(approximation) == 4:
+            document_contour = contour
+            break
+
+    if document_contour is not None:
+        disp_img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        cv2.drawContours(disp_img, [document_contour], -1, (0, 0, 255))
+        cv2.imshow("Contours", disp_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 def correct_img(img):
@@ -63,23 +75,16 @@ def correct_img(img):
     return img
 
 
-if __name__ == '__main__':
+def main():
     args = parse_arguments()
 
     filenames = args.filenames
-    print(args.show)
 
     for filename in filenames:
-        # print(filename)
         img = cv2.imread(filename, cv2.IMREAD_COLOR)
         correct_img(img)
-        # width = int(img.shape[1] * 0.2)
-        # height = int(img.shape[0] * 0.2)
-        # img = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
-        # img = blur_img(img)
-        # dst = cv2.Canny(img, 50, 200, None, 3)
-        # cv2.imshow("Window", img)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # detect_rectangle(dst)
+
+
+if __name__ == '__main__':
+    main()
 
