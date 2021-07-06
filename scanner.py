@@ -94,13 +94,20 @@ def correct_img(img):
     document_approximation, document_contour = detect_document(edges)
     if document_approximation is None:
         return None
+    # TODO: use non-linear transformation for document correction
     # leaving the detailed contour so that maybe I can apply non-linear transformation to correct the resulting image
+    # https://mathematica.stackexchange.com/questions/5676/how-to-peel-the-labels-from-marmalade-jars-using-mathematica
+    # https://dsp.stackexchange.com/questions/2406/how-to-flatten-the-image-of-a-label-on-a-food-jar
     img = transform_to_birds_eye(img, document_approximation * ratio)
 
     return img
 
 
 def scannify(img, block_size, c):
+    if block_size < 0:
+        error(f"Specified block size {block_size} is less than zero.")
+    if c < 0:
+        error(f"Specified c {c} is less than zero.")
     img = convert_to_grayscale_img(img)
     if (block_size != 0) and (c != 0):
         if block_size % 2 != 1:
